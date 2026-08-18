@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026 x09
+# This file is distributed under the same license as the x09-nssrole package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: x09-nssrole 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-17 12:00+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "No libnss-role policy found in registry"
+msgstr ""
+
+msgid "Using custom role filename: %s"
+msgstr ""
+
+msgid "Invalid filename \"%s\", using default: %s"
+msgstr ""
+
+msgid "Read %d role definitions from policy"
+msgstr ""
+
+msgid "Failed to read libnss-role policy: %s"
+msgstr ""
+
+msgid "Invalid role line (missing or multiple colons): %s"
+msgstr ""
+
+msgid "Invalid role line format: %s"
+msgstr ""
+
+msgid "Invalid role line (empty role name): %s"
+msgstr ""
+
+msgid "Invalid role line (empty group list): %s"
+msgstr ""
+
+msgid "No roles to write, skipping"
+msgstr ""
+
+msgid "Skipping invalid role line: %s"
+msgstr ""
+
+msgid "No valid role definitions found after validation"
+msgstr ""
+
+msgid "Created role directory: %s"
+msgstr ""
+
+msgid "Failed to create role directory %s: %s"
+msgstr ""
+
+msgid "Successfully wrote %d roles to %s"
+msgstr ""
+
+msgid "Failed to write role file %s: %s"
+msgstr ""
+
+msgid "Starting libnss-role applier"
+msgstr ""
+
+msgid "libnss-role applier completed successfully"
+msgstr ""
+
+msgid "libnss-role applier failed: %s"
+msgstr ""

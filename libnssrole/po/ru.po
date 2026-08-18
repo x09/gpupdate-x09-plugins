@@ -1,0 +1,74 @@
+# Russian translations for x09-nssrole package.
+# Copyright (C) 2026 x09
+# This file is distributed under the same license as the x09-nssrole package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: x09-nssrole 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-17 12:00+0500\n"
+"PO-Revision-Date: 2026-08-17 12:00+0500\n"
+"Last-Translator: x09 Team\n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "No libnss-role policy found in registry"
+msgstr "Политика libnss-role не найдена в реестре"
+
+msgid "Using custom role filename: %s"
+msgstr "Используется пользовательское имя файла ролей: %s"
+
+msgid "Invalid filename \"%s\", using default: %s"
+msgstr "Некорректное имя файла \"%s\", используется по умолчанию: %s"
+
+msgid "Read %d role definitions from policy"
+msgstr "Прочитано определений ролей из политики: %d"
+
+msgid "Failed to read libnss-role policy: %s"
+msgstr "Не удалось прочитать политику libnss-role: %s"
+
+msgid "Invalid role line (missing or multiple colons): %s"
+msgstr "Некорректная строка роли (отсутствует двоеточие или их несколько): %s"
+
+msgid "Invalid role line format: %s"
+msgstr "Некорректный формат строки роли: %s"
+
+msgid "Invalid role line (empty role name): %s"
+msgstr "Некорректная строка роли (пустое имя роли): %s"
+
+msgid "Invalid role line (empty group list): %s"
+msgstr "Некорректная строка роли (пустой список групп): %s"
+
+msgid "No roles to write, skipping"
+msgstr "Нет ролей для записи, пропускаем"
+
+msgid "Skipping invalid role line: %s"
+msgstr "Пропускается некорректная строка роли: %s"
+
+msgid "No valid role definitions found after validation"
+msgstr "Не найдено корректных определений ролей после проверки"
+
+msgid "Created role directory: %s"
+msgstr "Создан каталог ролей: %s"
+
+msgid "Failed to create role directory %s: %s"
+msgstr "Не удалось создать каталог ролей %s: %s"
+
+msgid "Successfully wrote %d roles to %s"
+msgstr "Успешно записано ролей: %d в файл %s"
+
+msgid "Failed to write role file %s: %s"
+msgstr "Не удалось записать файл ролей %s: %s"
+
+msgid "Starting libnss-role applier"
+msgstr "Запуск обработчика libnss-role"
+
+msgid "libnss-role applier completed successfully"
+msgstr "Обработчик libnss-role завершён успешно"
+
+msgid "libnss-role applier failed: %s"
+msgstr "Обработчик libnss-role завершился с ошибкой: %s"

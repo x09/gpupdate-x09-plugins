@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>x09 Group Policy Templates</displayName>
+  <description>Group Policy Templates for x09</description>
+  <resources>
+    <stringTable>
+      <string id="RoleManagement_Name">Role Management via libnss-role</string>
+      <string id="RoleManagement_Explain">Configure roles and privileges via libnss-role.
+
+This policy allows managing group membership in groups on ALT Linux client machines.
+
+Role file name:
+Specify the file name (without path) that will be created in /etc/role.d/
+Default: custom-roles.role
+The file will be completely overwritten with the content from the role list below.
+
+Role string format:
+&lt;group&gt;:&lt;group&gt;[,&lt;group&gt;]*
+
+where:
+- left of the colon — role name (group that will be included in other groups)
+- right of the colon — comma-separated list of groups this role is included in
+
+Examples:
+users: cdwriter, cdrom, audio, video, camera, floppy
+localadmins: wheel
+domain admins:localadmins
+WIN\domain admins:localadmins
+powerusers: remote, users
+
+Allowed characters in group names:
+- Latin, Cyrillic, digits
+- symbols: \ - _ (backslash, hyphen, underscore)
+- spaces
+
+Each line in the list is one role. Group inclusions are applied recursively.</string>
+      <string id="RoleFileName_Name">Role file name</string>
+      <string id="RolesList_Name">Role list</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="RoleManagement">
+        <textBox refId="RoleFileName">
+          <label>Role file name (default: custom-roles.role):</label>
+          <defaultValue>custom-roles.role</defaultValue>
+        </textBox>
+        <listBox refId="RolesList">Role list (format: role:group1,group2,...):</listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

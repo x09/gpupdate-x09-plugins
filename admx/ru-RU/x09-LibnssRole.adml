@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Шаблоны групповой политики x09</displayName>
+  <description>Шаблоны групповой политики для продуктов x09</description>
+  <resources>
+    <stringTable>
+      <string id="RoleManagement_Name">Управление ролями через libnss-role</string>
+      <string id="RoleManagement_Explain">Настройка ролей и привилегий через libnss-role.
+
+Эта политика позволяет управлять вхождением групп в группы на клиентских машинах ALT Linux.
+
+Имя файла ролей:
+Укажите имя файла (без пути), который будет создан в /etc/role.d/
+По умолчанию: custom-roles.role
+Файл будет полностью перезаписан содержимым из списка ролей ниже.
+
+Формат строки роли:
+&lt;группа&gt;:&lt;группа&gt;[,&lt;группа&gt;]*
+
+где:
+- слева от двоеточия — имя роли (группа, которая будет входить в другие группы)
+- справа от двоеточия — список групп через запятую, в которые входит данная роль
+
+Примеры:
+users: cdwriter, cdrom, audio, video, camera, floppy
+localadmins: wheel
+администраторы домена:localadmins
+WIN\администраторы домена:localadmins
+powerusers: remote, users
+
+Допустимые символы в именах групп:
+- латиница, кириллица, цифры
+- символы: \ - _ (обратный слэш, дефис, подчёркивание)
+- пробелы
+
+Каждая строка в списке — это одна роль. Вхождения групп применяются рекурсивно.</string>
+      <string id="RoleFileName_Name">Имя файла ролей</string>
+      <string id="RolesList_Name">Список ролей</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="RoleManagement">
+        <textBox refId="RoleFileName">
+          <label>Имя файла ролей (по умолчанию: custom-roles.role):</label>
+          <defaultValue>custom-roles.role</defaultValue>
+        </textBox>
+        <listBox refId="RolesList">Список ролей (формат: роль:группа1,группа2,...):</listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

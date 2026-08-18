@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>x09 Group Policy Templates</displayName>
+  <description>Group Policy Templates for x09</description>
+  <resources>
+    <stringTable>
+      <string id="FirewallRulesList_Name">Firewall Rules Management</string>
+      <string id="FirewallRulesList_Explain">Configure firewall rules.
+
+Rule input format:
+Action=Allow|Deny|Reject;Direction=In|Out;Protocol=TCP|UDP;Port=port_number;Source=IP-address;Destination=IP-address
+
+Examples:
+Action=Allow;Direction=In;Protocol=TCP;Port=80;Source=10.0.0.0/24;Destination=192.168.1.1
+Action=Deny;Direction=Out;Protocol=UDP;Port=53;Source=192.168.1.0/24;Destination=8.8.8.8
+
+Parameters:
+- Action: Allow, Deny, Reject
+- Direction: In (incoming), Out (outgoing)
+- Protocol: TCP, UDP
+- Port: port number (1-65535)
+- Source: source IP address (can include mask)
+- Destination: destination IP address (can include mask)
+
+Each rule is saved as a separate line in the list.
+A total of up to 10 rules can be added.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="FirewallRulesList">
+        <listBox refId="FirewallRulesList" />
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

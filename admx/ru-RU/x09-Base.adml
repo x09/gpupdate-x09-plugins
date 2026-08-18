@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Базовые шаблоны x09</displayName>
+  <description>Базовые категории для шаблонов групповой политики x09</description>
+  <resources>
+    <stringTable>
+      <string id="ThirdPartyTemplatesCategory">Сторонние шаблоны</string>
+      <string id="FirewallCategory">Межсетевой экран (iptables)</string>
+      <string id="LibnssRoleCategory">Управление ролями (libnss-role)</string>
+      <string id="SUPPORTED_x09Firewall">Плагин x09 Firewall</string>
+      <string id="SUPPORTED_x09LibnssRole">Плагин x09 libnss-role</string>
+    </stringTable>
+  </resources>
+</policyDefinitionResources>

@@ -1,0 +1,52 @@
+#
+# Russian translations for x09_firewall plugin.
+# Copyright (C) 2025 BaseALT Ltd.
+# This file is distributed under the same license as the x09_firewall package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: x09_firewall 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-13 00:00+0000\n"
+"PO-Revision-Date: 2026-08-13 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+
+msgid "X09 Firewall applier initialized"
+msgstr "Плагин X09 Firewall инициализирован"
+
+msgid "Applying firewall rules from registry"
+msgstr "Применение правил брандмауэра из реестра"
+
+msgid "Firewall rules applied successfully: {applied} rule(s)"
+msgstr "Правила брандмауэра успешно применены: {applied}"
+
+msgid "Firewall rules saved to {path}"
+msgstr "Правила брандмауэра сохранены в {path}"
+
+msgid "Skipping plugin: not running in machine context"
+msgstr "Плагин пропущен: запуск не в машинном контексте"
+
+msgid "No firewall policy found in registry"
+msgstr "Политика брандмауэра не найдена в реестре"
+
+msgid "Skipping invalid rule '{rule}': {reason}"
+msgstr "Пропуск некорректного правила '{rule}': {reason}"
+
+msgid "iptables command not available on this system"
+msgstr "Команда iptables недоступна в этой системе"
+
+msgid "Failed to apply firewall rules: {error}"
+msgstr "Не удалось применить правила брандмауэра: {error}"
+
+msgid "Failed to save firewall rules: {error}"
+msgstr "Не удалось сохранить правила брандмауэра: {error}"
+
+msgid "iptables command failed: {command} (exit {code})"
+msgstr "Команда iptables завершилась с ошибкой: {command} (код {code})"

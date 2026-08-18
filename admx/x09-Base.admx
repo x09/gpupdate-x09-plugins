@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  (c) 2026 x09  -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="x09base" namespace="x09.Base" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <supportedOn>
+    <definitions>
+      <definition name="SUPPORTED_x09Firewall" displayName="$(string.SUPPORTED_x09Firewall)" />
+      <definition name="SUPPORTED_x09LibnssRole" displayName="$(string.SUPPORTED_x09LibnssRole)" />
+    </definitions>
+  </supportedOn>
+  <categories>
+    <category name="ThirdPartyTemplates" displayName="$(string.ThirdPartyTemplatesCategory)" />
+    <category name="Firewall" displayName="$(string.FirewallCategory)">
+      <parentCategory ref="ThirdPartyTemplates" />
+    </category>
+    <category name="LibnssRole" displayName="$(string.LibnssRoleCategory)">
+      <parentCategory ref="ThirdPartyTemplates" />
+    </category>
+  </categories>
+</policyDefinitions>

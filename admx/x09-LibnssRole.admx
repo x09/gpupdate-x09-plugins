@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  (c) 2026 x09  -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="x09role" namespace="x09.Policies.LibnssRole" />
+    <using prefix="x09base" namespace="x09.Base" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <policies>
+    <policy name="RoleManagement" class="Machine" displayName="$(string.RoleManagement_Name)"
+        explainText="$(string.RoleManagement_Explain)"
+        key="Software\Policies\x09\LibnssRole"
+        presentation="$(presentation.RoleManagement)">
+      <parentCategory ref="x09base:LibnssRole" />
+      <supportedOn ref="x09base:SUPPORTED_x09LibnssRole" />
+      <elements>
+        <text id="RoleFileName" key="Software\Policies\x09\LibnssRole" valueName="RoleFileName" required="false" />
+        <list id="RolesList" key="Software\Policies\x09\LibnssRole" valuePrefix="Role" />
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  (c) 2025 x09  -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="x09fw" namespace="x09.Policies.Firewall" />
+    <using prefix="x09base" namespace="x09.Base" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <policies>
+    <policy name="FirewallRules" class="Machine" displayName="$(string.FirewallRulesList_Name)"
+        explainText="$(string.FirewallRulesList_Explain)"
+        key="Software\Policies\x09\Firewall"
+        presentation="$(presentation.FirewallRulesList)">
+      <parentCategory ref="x09base:Firewall" />
+      <supportedOn ref="x09base:SUPPORTED_x09Firewall" />
+      <elements>
+        <list id="FirewallRulesList" key="Software\Policies\x09\Firewall" valuePrefix="Rule" />
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>
