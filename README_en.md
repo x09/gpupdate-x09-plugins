@@ -163,10 +163,3 @@ gpupdate-x09-plugins-v1.0/
     └── tests/
 ```
 
-## License
-
-GPL-2.0-or-later
-
-## Authors
-
-© 2026 x09
