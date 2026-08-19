@@ -19,81 +19,110 @@ to /etc/role.d/ for libnss-role to apply.
 
 import os
 import logging
-import gettext
 import re
 
-from plugin_interface import FrontendPlugin, plugin_factory
-from util.paths import get_dict_registry
-from util.runcmd import runcmd
+from gpoa_lib.plugin.plugin_base import FrontendPlugin
 
-# Setup gettext localization
-gettext.bindtextdomain('x09_nssrole', '/usr/share/locale')
-gettext.textdomain('x09_nssrole')
-_ = gettext.gettext
+# Logging
+log = logging.getLogger('plugin.x09_nssrole')
 
-logger = logging.getLogger('x09_nssrole')
+# Registry path (use forward slashes for gpoa compatibility)
+REGISTRY_PATH = 'Software/Policies/x09/LibnssRole'
+
+# Role directory and default filename
+ROLE_DIR = '/etc/role.d'
+DEFAULT_FILENAME = 'custom-roles.role'
+
+# Regex pattern to validate role line format: group:group1,group2,...
+# Allows: alphanumeric, Cyrillic, space, backslash, hyphen, underscore
+ROLE_LINE_PATTERN = re.compile(r'^[\w\\\s\-_]+:[\w\\\s\-_,]+$', re.UNICODE)
 
 
-class NssRoleApplier:
+class X09NssRoleApplier(FrontendPlugin):
     """
     Applies libnss-role configuration from Group Policy.
     """
 
-    ROLE_DIR = '/etc/role.d'
-    DEFAULT_FILENAME = 'custom-roles.role'
-    REGISTRY_PATH = 'Software\\Policies\\x09\\LibnssRole'
+    # Domain for translations
+    domain = 'x09_nssrole'
 
-    # Regex pattern to validate role line format: group:group1,group2,...
-    # Allows: alphanumeric, Cyrillic, space, backslash, hyphen, underscore
-    ROLE_LINE_PATTERN = re.compile(r'^[\w\\\s\-_]+:[\w\\\s\-_,]+$', re.UNICODE)
-
-    def __init__(self, storage):
-        """
-        Initialize the applier.
-
-        Args:
-            storage: Registry storage backend
-        """
-        self.storage = storage
+    def __init__(self, dict_dconf_db, username=None, fs_file_cache=None, registry_path=None):
+        super().__init__(dict_dconf_db, username, fs_file_cache, registry_path)
+        self._registry_path = registry_path
         self.roles = []
-        self.filename = self.DEFAULT_FILENAME
+        self.filename = DEFAULT_FILENAME
+
+        # Initialize plugin logging
+        self._init_plugin_log(
+            message_dict={
+                'i': {
+                    0: "Starting libnss-role applier",
+                    1: "No libnss-role policy found in registry",
+                    2: "Using custom role filename: {filename}",
+                    3: "Read {count} role definitions from policy",
+                    4: "No roles to write, skipping",
+                    5: "Created role directory: {dir}",
+                    6: "Successfully wrote {count} roles to {file}",
+                    7: "libnss-role applier completed successfully",
+                },
+                'w': {
+                    1: "Invalid filename '{filename}', using default: {default}",
+                    2: "Invalid role line (missing or multiple colons): {line}",
+                    3: "Invalid role line format: {line}",
+                    4: "Invalid role line (empty role name): {line}",
+                    5: "Invalid role line (empty group list): {line}",
+                    6: "Skipping invalid role line: {line}",
+                    7: "No valid role definitions found after validation",
+                },
+                'e': {
+                    1: "Failed to create role directory {dir}: {error}",
+                    2: "Failed to write role file {file}: {error}",
+                    3: "libnss-role applier failed: {error}",
+                },
+            },
+            domain="x09_nssrole",
+        )
 
     def _read_policy(self):
         """
         Read role definitions from registry.
         """
-        try:
-            policy_data = get_dict_registry(self.storage, self.REGISTRY_PATH)
+        policy_data = self.get_dict_registry(self._registry_path or REGISTRY_PATH)
 
-            if not policy_data:
-                logger.info(_('No libnss-role policy found in registry'))
-                return
+        # Debug: log what we got
+        log.debug("Registry data: %s", policy_data)
 
-            # Read custom filename if provided
-            if 'RoleFileName' in policy_data:
-                filename = policy_data['RoleFileName'].strip()
-                if filename and self._validate_filename(filename):
-                    self.filename = filename
-                    logger.info(_('Using custom role filename: %s'), self.filename)
-                else:
-                    logger.warning(_('Invalid filename "%s", using default: %s'),
-                                 filename, self.DEFAULT_FILENAME)
+        if not policy_data:
+            self.log('I1')  # No policy found
+            return
 
-            # Read role definitions (Role1, Role2, ...)
-            role_entries = []
-            for key, value in policy_data.items():
-                if key.startswith('Role') and key[4:].isdigit():
-                    role_entries.append((int(key[4:]), value))
+        # Read filename from Settings subkey
+        settings_path = (self._registry_path or REGISTRY_PATH) + '/Settings'
+        settings_data = self.get_dict_registry(settings_path)
 
-            # Sort by numeric suffix to preserve order
-            role_entries.sort(key=lambda x: x[0])
-            self.roles = [value.strip() for _, value in role_entries if value.strip()]
+        if settings_data and 'RoleFileName' in settings_data:
+            filename = settings_data['RoleFileName'].strip()
+            if filename and self._validate_filename(filename):
+                self.filename = filename
+                self.log('I2', {'filename': self.filename})
+            else:
+                self.log('W1', {'filename': filename, 'default': DEFAULT_FILENAME})
 
-            logger.info(_('Read %d role definitions from policy'), len(self.roles))
+        # Read role definitions (Role1, Role2, ...)
+        role_entries = []
+        for key, value in policy_data.items():
+            # Skip marker values
+            if key == '**delvals.' or key == 'RolesList':
+                continue
+            if key.startswith('Role') and key[4:].isdigit():
+                role_entries.append((int(key[4:]), value))
 
-        except Exception as exc:
-            logger.error(_('Failed to read libnss-role policy: %s'), exc)
-            raise
+        # Sort by numeric suffix to preserve order
+        role_entries.sort(key=lambda x: x[0])
+        self.roles = [value.strip() for _, value in role_entries if value.strip()]
+
+        log.debug("Parsed %d roles: %s", len(self.roles), self.roles)
+        self.log('I3', {'count': len(self.roles)})
 
     def _validate_filename(self, filename):
         """
@@ -137,23 +166,23 @@ class NssRoleApplier:
 
         # Must contain exactly one colon
         if line.count(':') != 1:
-            logger.warning(_('Invalid role line (missing or multiple colons): %s'), line)
+            self.log('W2', {'line': line})
             return False
 
         # Check against pattern
-        if not self.ROLE_LINE_PATTERN.match(line):
-            logger.warning(_('Invalid role line format: %s'), line)
+        if not ROLE_LINE_PATTERN.match(line):
+            self.log('W3', {'line': line})
             return False
 
         # Split and validate parts
         left, right = line.split(':', 1)
 
         if not left.strip():
-            logger.warning(_('Invalid role line (empty role name): %s'), line)
+            self.log('W4', {'line': line})
             return False
 
         if not right.strip():
-            logger.warning(_('Invalid role line (empty group list): %s'), line)
+            self.log('W5', {'line': line})
             return False
 
         return True
@@ -163,7 +192,7 @@ class NssRoleApplier:
         Write role definitions to /etc/role.d/ file.
         """
         if not self.roles:
-            logger.info(_('No roles to write, skipping'))
+            self.log('I4')  # No roles to write
             return
 
         # Validate all role lines
@@ -172,24 +201,23 @@ class NssRoleApplier:
             if self._validate_role_line(role_line):
                 valid_roles.append(role_line)
             else:
-                logger.warning(_('Skipping invalid role line: %s'), role_line)
+                self.log('W6', {'line': role_line})
 
         if not valid_roles:
-            logger.warning(_('No valid role definitions found after validation'))
+            self.log('W7')  # No valid roles after validation
             return
 
         # Ensure role directory exists
-        if not os.path.exists(self.ROLE_DIR):
+        if not os.path.exists(ROLE_DIR):
             try:
-                os.makedirs(self.ROLE_DIR, mode=0o755)
-                logger.info(_('Created role directory: %s'), self.ROLE_DIR)
+                os.makedirs(ROLE_DIR, mode=0o755)
+                self.log('I5', {'dir': ROLE_DIR})
             except OSError as exc:
-                logger.error(_('Failed to create role directory %s: %s'),
-                           self.ROLE_DIR, exc)
+                self.log('E1', {'dir': ROLE_DIR, 'error': str(exc)})
                 raise
 
         # Write role file (overwrite strategy)
-        filepath = os.path.join(self.ROLE_DIR, self.filename)
+        filepath = os.path.join(ROLE_DIR, self.filename)
         try:
             with open(filepath, 'w', encoding='utf-8') as f:
                 for role_line in valid_roles:
@@ -198,77 +226,46 @@ class NssRoleApplier:
             # Set proper permissions (readable by all)
             os.chmod(filepath, 0o644)
 
-            logger.info(_('Successfully wrote %d roles to %s'), len(valid_roles), filepath)
+            self.log('I6', {'count': len(valid_roles), 'file': filepath})
 
         except (OSError, IOError) as exc:
-            logger.error(_('Failed to write role file %s: %s'), filepath, exc)
+            self.log('E2', {'file': filepath, 'error': str(exc)})
             raise
 
-    def run(self):
+    def run(self, **kwargs):
         """
         Main entry point: read policy and apply roles.
+
+        Args:
+            **kwargs: Additional arguments (not used, but required by interface)
+
+        Returns:
+            bool: True on success, False on failure
         """
-        logger.info(_('Starting libnss-role applier'))
+        self.log('I0')  # Starting
 
         try:
             self._read_policy()
             self._write_role_file()
-            logger.info(_('libnss-role applier completed successfully'))
+            self.log('I7')  # Completed successfully
+            return True
         except Exception as exc:
-            logger.error(_('libnss-role applier failed: %s'), exc)
-            # Don't raise - allow gpupdate to continue with other plugins
+            self.log('E3', {'error': str(exc)})
+            return False
 
 
-class NssRolePlugin(FrontendPlugin):
+# --------------------------------------------------------------------------- #
+# Factory function
+# --------------------------------------------------------------------------- #
+
+def create_machine_applier(dict_dconf_db, username=None, fs_file_cache=None,
+                           registry_path=None):
     """
-    Frontend plugin for libnss-role management.
+    Create an instance of the plugin for machine context.
+
+    User factory (create_user_applier) is intentionally not defined:
+    libnss-role is managed only in machine context. Plugin manager
+    won't run the plugin in user context without create_user_applier.
     """
-
-    plugin_name = 'x09_nssrole'
-
-    def __init__(self, plugin_manager, storage):
-        """
-        Initialize plugin.
-
-        Args:
-            plugin_manager: Plugin manager instance
-            storage: Registry storage backend
-        """
-        super().__init__(plugin_manager, storage)
-        self.plugin_manager = plugin_manager
-        self.storage = storage
-
-    def create_machine_applier(self):
-        """
-        Create machine-side applier (runs as root).
-
-        Returns:
-            NssRoleApplier instance
-        """
-        return NssRoleApplier(self.storage)
-
-    def create_user_applier(self, sid):
-        """
-        Create user-side applier (not used for libnss-role).
-
-        Args:
-            sid: User SID
-
-        Returns:
-            None (libnss-role is machine-only)
-        """
-        return None
-
-
-def plugin_factory(plugin_manager, storage):
-    """
-    Factory function to create plugin instance.
-
-    Args:
-        plugin_manager: Plugin manager instance
-        storage: Registry storage backend
-
-    Returns:
-        NssRolePlugin instance
-    """
-    return NssRolePlugin(plugin_manager, storage)
+    return X09NssRoleApplier(dict_dconf_db, username, fs_file_cache,
+                             registry_path)

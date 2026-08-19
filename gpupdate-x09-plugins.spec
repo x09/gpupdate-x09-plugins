@@ -10,6 +10,7 @@ License: GPL-2.0-or-later
 Group: System/Configuration/Other
 Url: https://github.com/x09/gpupdate-x09-plugins
 BuildArch: noarch
+AutoReqProv: no
 
 BuildRequires(pre): rpm-build-python3
 BuildRequires: gettext-tools
@@ -48,7 +49,9 @@ Summary: Firewall (iptables) management plugin for gpupdate
 License: GPL-2.0-or-later
 Group: System/Configuration/Other
 
+AutoReqProv: no
 Requires: iptables
+Requires: python3
 Requires: gpoa-lib >= 0.16
 
 %description -n gpupdate-x09-firewall-plugin
@@ -66,7 +69,9 @@ Summary: Role management (libnss-role) plugin for gpupdate
 License: GPL-2.0-or-later
 Group: System/Configuration/Other
 
+AutoReqProv: no
 Requires: libnss-role
+Requires: python3
 Requires: gpoa-lib >= 0.16
 
 %description -n gpupdate-x09-libnssrole-plugin
@@ -88,11 +93,11 @@ msgfmt -o iptables/locale/ru_RU/LC_MESSAGES/x09_firewall.mo \
 msgfmt -o iptables/locale/en_US/LC_MESSAGES/x09_firewall.mo \
     iptables/locale/en_US/LC_MESSAGES/x09_firewall.po
 
-# Compile translations for libnssrole plugin (already compiled, but verify)
-cd libnssrole/po
-[ -f ru.mo ] || msgfmt ru.po -o ru.mo
-[ -f en.mo ] || msgfmt en.po -o en.mo
-cd ../..
+# Compile translations for libnssrole plugin
+msgfmt -o libnssrole/locale/ru_RU/LC_MESSAGES/x09_nssrole.mo \
+    libnssrole/locale/ru_RU/LC_MESSAGES/x09_nssrole.po
+msgfmt -o libnssrole/locale/en_US/LC_MESSAGES/x09_nssrole.mo \
+    libnssrole/locale/en_US/LC_MESSAGES/x09_nssrole.po
 
 %install
 # ============ ADMX templates ============
@@ -119,11 +124,11 @@ install -m0644 libnssrole/plugin/x09_nssrole.py \
     %buildroot/usr/lib/gpoa/plugins/x09_nssrole.py
 
 mkdir -p %buildroot/usr/lib/gpoa/plugins/locale/ru_RU/LC_MESSAGES
-install -m0644 libnssrole/locale/ru-RU/LC_MESSAGES/x09_nssrole.mo \
+install -m0644 libnssrole/locale/ru_RU/LC_MESSAGES/x09_nssrole.mo \
     %buildroot/usr/lib/gpoa/plugins/locale/ru_RU/LC_MESSAGES/
 
 mkdir -p %buildroot/usr/lib/gpoa/plugins/locale/en_US/LC_MESSAGES
-install -m0644 libnssrole/locale/en-US/LC_MESSAGES/x09_nssrole.mo \
+install -m0644 libnssrole/locale/en_US/LC_MESSAGES/x09_nssrole.mo \
     %buildroot/usr/lib/gpoa/plugins/locale/en_US/LC_MESSAGES/
 
 %check
