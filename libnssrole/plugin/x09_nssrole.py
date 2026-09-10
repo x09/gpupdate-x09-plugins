@@ -127,36 +127,86 @@ class X09NssRoleApplier(FrontendPlugin):
         self.roles = []
         self.filename = DEFAULT_FILENAME
 
-        # Initialize plugin logging (without translations to avoid encoding issues)
-        self._init_plugin_log(
-            message_dict={
-                'i': {
-                    0: "Starting libnss-role applier",
-                    1: "No libnss-role policy found in registry",
-                    2: "Using custom role filename: {filename}",
-                    3: "Read {count} role definitions from policy",
-                    4: "No roles to write, skipping",
-                    5: "Created role directory: {dir}",
-                    6: "Successfully wrote {count} roles to {file}",
-                    7: "libnss-role applier completed successfully",
+        # Initialize plugin logging with multiple locale paths
+        # Try both standard system path and plugin-local path
+        import os
+        locale_dirs = [
+            '/usr/share/locale',                    # System standard path
+            '/usr/lib/gpoa/plugins/locale',         # Plugin-local path
+        ]
+
+        # Find first existing locale directory
+        locale_path = None
+        for ldir in locale_dirs:
+            if os.path.isdir(ldir):
+                locale_path = ldir
+                break
+
+        # Initialize without specifying domain first (to avoid encoding errors)
+        # Then try to load translations manually with error handling
+        try:
+            self._init_plugin_log(
+                message_dict={
+                    'i': {
+                        0: "Starting libnss-role applier",
+                        1: "No libnss-role policy found in registry",
+                        2: "Using custom role filename: {filename}",
+                        3: "Read {count} role definitions from policy",
+                        4: "No roles to write, skipping",
+                        5: "Created role directory: {dir}",
+                        6: "Successfully wrote {count} roles to {file}",
+                        7: "libnss-role applier completed successfully",
+                    },
+                    'w': {
+                        1: "Invalid filename '{filename}', using default: {default}",
+                        2: "Invalid role line (missing or multiple colons): {line}",
+                        3: "Invalid role line format: {line}",
+                        4: "Invalid role line (empty role name): {line}",
+                        5: "Invalid role line (empty group list): {line}",
+                        6: "Skipping invalid role line: {line}",
+                        7: "No valid role definitions found after validation",
+                    },
+                    'e': {
+                        1: "Failed to create role directory {dir}: {error}",
+                        2: "Failed to write role file {file}: {error}",
+                        3: "libnss-role applier failed: {error}",
+                    },
                 },
-                'w': {
-                    1: "Invalid filename '{filename}', using default: {default}",
-                    2: "Invalid role line (missing or multiple colons): {line}",
-                    3: "Invalid role line format: {line}",
-                    4: "Invalid role line (empty role name): {line}",
-                    5: "Invalid role line (empty group list): {line}",
-                    6: "Skipping invalid role line: {line}",
-                    7: "No valid role definitions found after validation",
+                locale_dir=locale_path,
+                domain="x09_nssrole",
+            )
+        except Exception as e:
+            # If translation loading fails, fall back to English-only
+            log.warning("Could not load translations: %s, using English", e)
+            self._init_plugin_log(
+                message_dict={
+                    'i': {
+                        0: "Starting libnss-role applier",
+                        1: "No libnss-role policy found in registry",
+                        2: "Using custom role filename: {filename}",
+                        3: "Read {count} role definitions from policy",
+                        4: "No roles to write, skipping",
+                        5: "Created role directory: {dir}",
+                        6: "Successfully wrote {count} roles to {file}",
+                        7: "libnss-role applier completed successfully",
+                    },
+                    'w': {
+                        1: "Invalid filename '{filename}', using default: {default}",
+                        2: "Invalid role line (missing or multiple colons): {line}",
+                        3: "Invalid role line format: {line}",
+                        4: "Invalid role line (empty role name): {line}",
+                        5: "Invalid role line (empty group list): {line}",
+                        6: "Skipping invalid role line: {line}",
+                        7: "No valid role definitions found after validation",
+                    },
+                    'e': {
+                        1: "Failed to create role directory {dir}: {error}",
+                        2: "Failed to write role file {file}: {error}",
+                        3: "libnss-role applier failed: {error}",
+                    },
                 },
-                'e': {
-                    1: "Failed to create role directory {dir}: {error}",
-                    2: "Failed to write role file {file}: {error}",
-                    3: "libnss-role applier failed: {error}",
-                },
-            },
-            domain=None,  # Disable translations
-        )
+                domain=None,  # Disable translations on fallback
+            )
 
     def _read_policy(self):
         """
