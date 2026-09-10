@@ -29,13 +29,88 @@ log = logging.getLogger('plugin.x09_nssrole')
 # Registry path (use forward slashes for gpoa compatibility)
 REGISTRY_PATH = 'Software/Policies/x09/LibnssRole'
 
+# Prefix for list values (from ADMX valuePrefix attribute, default is "Role")
+ROLE_PREFIX = 'Role'
+
+# Marker value to skip (from ADMX list element id)
+MARKER_VALUE = 'RolesList'
+
 # Role directory and default filename
 ROLE_DIR = '/etc/role.d'
 DEFAULT_FILENAME = 'custom-roles.role'
 
 # Regex pattern to validate role line format: group:group1,group2,...
-# Allows: alphanumeric, Cyrillic, space, backslash, hyphen, underscore
-ROLE_LINE_PATTERN = re.compile(r'^[\w\\\s\-_]+:[\w\\\s\-_,]+$', re.UNICODE)
+# Allows: Latin, Cyrillic letters, digits, space, backslash, hyphen, underscore
+# Pattern explicitly lists allowed characters (including Cyrillic ranges)
+ROLE_LINE_PATTERN = re.compile(
+    r'^[a-zA-Zа-яА-ЯёЁ0-9\\\s\-_]+:[a-zA-Zа-яА-ЯёЁ0-9\\\s\-_,]+$'
+)
+
+
+def extract_role_lines(config):
+    """
+    Extract role definition lines from registry data.
+
+    The ADMX list element stores data as a Python list in string format:
+    "['role1: groups', 'role2: groups']"
+
+    This function parses that string representation back into a list.
+
+    :param config: dictionary from registry
+    :returns: list of role definition strings
+    """
+    if not config:
+        return []
+
+    # The data might be stored directly under the registry path key
+    # or in a nested structure. We need to find the list value.
+
+    # First, try to get the value directly if config is a simple dict
+    if isinstance(config, str):
+        # If config is already a string (rare case), parse it
+        try:
+            import ast
+            roles = ast.literal_eval(config)
+            if isinstance(roles, list):
+                return [str(r).strip() for r in roles]
+        except:
+            return []
+
+    # Look for the LibnssRole key in various possible locations
+    def find_list_value(data):
+        """Recursively search for the list value in nested dict"""
+        if isinstance(data, str):
+            # Try to parse as Python list
+            try:
+                import ast
+                parsed = ast.literal_eval(data)
+                if isinstance(parsed, list):
+                    return parsed
+            except:
+                pass
+            return None
+        elif isinstance(data, list):
+            return data
+        elif isinstance(data, dict):
+            # Check direct keys first
+            for key in ['LibnssRole', 'libnssrole']:
+                if key in data:
+                    result = find_list_value(data[key])
+                    if result:
+                        return result
+            # Recursively check all values
+            for value in data.values():
+                result = find_list_value(value)
+                if result:
+                    return result
+        return None
+
+    roles_list = find_list_value(config)
+
+    if roles_list and isinstance(roles_list, list):
+        return [str(r).strip() for r in roles_list]
+
+    return []
 
 
 class X09NssRoleApplier(FrontendPlugin):
@@ -52,7 +127,7 @@ class X09NssRoleApplier(FrontendPlugin):
         self.roles = []
         self.filename = DEFAULT_FILENAME
 
-        # Initialize plugin logging
+        # Initialize plugin logging (without translations to avoid encoding issues)
         self._init_plugin_log(
             message_dict={
                 'i': {
@@ -80,49 +155,75 @@ class X09NssRoleApplier(FrontendPlugin):
                     3: "libnss-role applier failed: {error}",
                 },
             },
-            domain="x09_nssrole",
+            domain=None,  # Disable translations
         )
 
     def _read_policy(self):
         """
         Read role definitions from registry.
+
+        The data is stored as:
+        Software/Policies/x09/LibnssRole = "['role1: groups', 'role2: groups']"
+        Software/Policies/x09/LibnssRole/Settings/RoleFileName = "filename.role"
         """
+        # Get all data from the registry path
         policy_data = self.get_dict_registry(self._registry_path or REGISTRY_PATH)
 
-        # Debug: log what we got
-        log.debug("Registry data: %s", policy_data)
+        # If get_dict_registry returns empty, try direct entry access
+        if not policy_data:
+            from gpoa_lib import StorageAdapter
+            try:
+                adapter = StorageAdapter.from_dconf_db('policy')
+                direct_value = adapter.get_entry(REGISTRY_PATH, preg=False)
+
+                # If direct entry has value, use it
+                if direct_value:
+                    # Parse the list directly
+                    self.roles = extract_role_lines(direct_value)
+                    if self.roles:
+                        self.log('I3', {'count': len(self.roles)})
+                    # Mark that we have data to continue reading Settings
+                    policy_data = {'_from_direct': True}
+            except Exception as e:
+                log.warning("Could not read policy via direct entry: %s", e)
 
         if not policy_data:
             self.log('I1')  # No policy found
             return
 
+        # Extract role lines from the list stored in LibnssRole key (if not already done)
+        if not self.roles:
+            self.roles = extract_role_lines(policy_data)
+            if self.roles:
+                self.log('I3', {'count': len(self.roles)})
+
         # Read filename from Settings subkey
         settings_path = (self._registry_path or REGISTRY_PATH) + '/Settings'
         settings_data = self.get_dict_registry(settings_path)
 
-        if settings_data and 'RoleFileName' in settings_data:
-            filename = settings_data['RoleFileName'].strip()
-            if filename and self._validate_filename(filename):
-                self.filename = filename
-                self.log('I2', {'filename': self.filename})
+        if settings_data:
+            # Extract RoleFileName value, handling both flat and nested formats
+            filename = None
+            if 'RoleFileName' in settings_data:
+                filename = settings_data['RoleFileName']
             else:
-                self.log('W1', {'filename': filename, 'default': DEFAULT_FILENAME})
+                # Check nested format (dict values)
+                for key, value in settings_data.items():
+                    if isinstance(value, dict) and 'RoleFileName' in value:
+                        filename = value['RoleFileName']
+                        break
+                    elif key.endswith('RoleFileName'):
+                        filename = value
+                        break
 
-        # Read role definitions (Role1, Role2, ...)
-        role_entries = []
-        for key, value in policy_data.items():
-            # Skip marker values
-            if key == '**delvals.' or key == 'RolesList':
-                continue
-            if key.startswith('Role') and key[4:].isdigit():
-                role_entries.append((int(key[4:]), value))
-
-        # Sort by numeric suffix to preserve order
-        role_entries.sort(key=lambda x: x[0])
-        self.roles = [value.strip() for _, value in role_entries if value.strip()]
-
-        log.debug("Parsed %d roles: %s", len(self.roles), self.roles)
-        self.log('I3', {'count': len(self.roles)})
+            if filename:
+                filename = str(filename).strip().rstrip('\x00')
+                if filename and self._validate_filename(filename):
+                    self.filename = filename
+                    self.log('I2', {'filename': self.filename})
+                else:
+                    self.log('W1', {'filename': filename, 'default': DEFAULT_FILENAME})
+        # If RoleFileName is not set, self.filename already has DEFAULT_FILENAME
 
     def _validate_filename(self, filename):
         """
@@ -154,6 +255,8 @@ class X09NssRoleApplier(FrontendPlugin):
         Validate a single role definition line.
 
         Expected format: <group>:<group>[,<group>]*
+
+        Допускает символы: латиница, кириллица, \\, -, _, пробелы
 
         Args:
             line: Role definition line
