@@ -71,7 +71,7 @@ powerusers: remote, users
 ---
 
 
-### x09 Ansible Plugin for GPOA
+### Плагин запуска Ansible playbook
 
 **Описание**
 
