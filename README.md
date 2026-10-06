@@ -70,6 +70,28 @@ powerusers: remote, users
 
 ---
 
+
+### x09 Ansible Plugin for GPOA
+
+**Описание**
+
+Плагин для применения групповых политик, позволяющий выполнять Ansible playbook на клиентских машинах Linux через механизм групповых политик MSAD/SAMBA AD.
+
+**Возможности**
+
+- Выполнение Ansible playbook, заданных через групповую политику
+- Работа в машинном (компьютерном) контексте с правами root
+- YML файл плейбука должен быть размещен в папке политики в подпапке \Machine\Scripts\YML (\\DOMAIN.ZONE\sysvol\domain.zone\Policies\{--GPO-UUID--}\Machine\Scripts\YML)
+
+## Требования
+
+- Python 3.x
+- gpoa (GPO Applier for Linux)
+- ansible-core или ansible (команда `ansible-playbook` должна быть доступна)
+- pyton3-module-smbc
+
+при установке rpm пакетом, все зависимости автоматически разрешаются
+
 ## Установка
 
 ### ADMX шаблоны (на контроллере домена)
@@ -92,6 +114,7 @@ samba-tool gpo admxload -UAdministrator
 В редакторе групповых политик шаблоны появятся в категории **"Сторонние шаблоны"** с подкатегориями:
 - Межсетевой экран (iptables)
 - Управление ролями (libnss-role)
+- Управление ansible playbook (ansible)
 
 ### Плагины (на клиентских машинах)
 
@@ -99,7 +122,7 @@ samba-tool gpo admxload -UAdministrator
 
 **Плагин межсетевого экрана:**
 ```bash
-apt-get install gpupdate-firewall-plugin
+apt-get install gpupdate-x09-firewall-plugin
 ```
 
 Устанавливает:
@@ -108,12 +131,21 @@ apt-get install gpupdate-firewall-plugin
 
 **Плагин управления ролями:**
 ```bash
-apt-get install gpupdate-nssrole-plugin
+apt-get install gpupdate-x09-libnssrole-plugin
 ```
 
 Устанавливает:
 - `/usr/lib/gpoa/plugins/x09_nssrole.py`
 - `/usr/lib/gpoa/plugins/locale/{ru_RU,en_US}/LC_MESSAGES/x09_nssrole.mo`
+
+**Плагин выполнения ansible playbook:**
+```bash
+apt-get install gpupdate-x09-ansible-plugin
+```
+
+Устанавливает:
+- `/usr/lib/gpoa/plugins/x09_ansible.py`
+
 
 ### Требования
 
@@ -124,7 +156,8 @@ apt-get install gpupdate-nssrole-plugin
 **На клиентских машинах:**
 - `gpoa-lib` (механизм плагинов gpupdate)
 - Для плагина firewall: `iptables`, `iptables-services`
-- Для плагина nssrole: `libnss-role`
+- Для плагина libnssrole: `libnss-role`
+- Для плагина ansible: `ansible-core`,`python3-module-smbc`
 
 ---
 
@@ -140,6 +173,7 @@ gpupdate -t COMPUTER -s -l 0
 
 ## Локализация
 
-Все плагины поддерживают русский и английский языки через GNU gettext. Отображаемый язык определяется локалью системы.
+Некоторые плагины поддерживают русский и английский языки через GNU gettext. Отображаемый язык определяется локалью системы.
+
 
 
