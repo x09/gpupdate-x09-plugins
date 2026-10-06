@@ -1,0 +1,18 @@
+---
+- name: Simple playbook file
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Create files
+      copy:
+        content: "{{item.content}}"
+        dest: "{{item.filename}}"
+        mode: '0644'
+      with_items:
+        - { filename: "/opt/hello-worldN1.txt", content: 'HELLO WORLD1'}
+        - { filename: "/opt/hello-worldN2.txt", content: 'HELLO WORLD2'}
+        - { filename: "/opt/hello-worldN3.txt", content: 'HELLO WORLD3'}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Шаблоны групповой политики x09 - Ansible</displayName>
+  <description>Шаблоны групповой политики для управления Ansible</description>
+  <resources>
+    <stringTable>
+      <string id="AnsiblePlaybook_Name">Управление Ansible Playbook</string>
+      <string id="AnsiblePlaybook_Explain">Настройка выполнения Ansible playbook на клиентских машинах.
+
+Эта политика позволяет указать имя файла Ansible playbook, который будет выполнен на целевой системе при применении групповой политики.
+
+Имя файла playbook:
+Укажите имя файла playbook (например, configure_system.yml). Файл должен находиться в общедоступном сетевом каталоге или быть развёрнут через другую политику.
+
+Playbook будет выполнен автоматически при обновлении групповых политик.
+
+Убедитесь, что файл playbook доступен для чтения на целевой системе и содержит корректный YAML синтаксис.</string>
+      <string id="PlaybookFilename_Name">Имя файла playbook</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="AnsiblePlaybook">
+        <textBox refId="PlaybookFilename">
+          <label>Имя файла playbook:</label>
+        </textBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

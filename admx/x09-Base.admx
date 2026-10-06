@@ -10,6 +10,7 @@
     <definitions>
       <definition name="SUPPORTED_x09Firewall" displayName="$(string.SUPPORTED_x09Firewall)" />
       <definition name="SUPPORTED_x09LibnssRole" displayName="$(string.SUPPORTED_x09LibnssRole)" />
+      <definition name="SUPPORTED_x09Ansible" displayName="$(string.SUPPORTED_x09Ansible)" />
     </definitions>
   </supportedOn>
   <categories>
@@ -18,6 +19,9 @@
       <parentCategory ref="ThirdPartyTemplates" />
     </category>
     <category name="LibnssRole" displayName="$(string.LibnssRoleCategory)">
+      <parentCategory ref="ThirdPartyTemplates" />
+    </category>
+    <category name="Ansible" displayName="$(string.AnsibleCategory)">
       <parentCategory ref="ThirdPartyTemplates" />
     </category>
   </categories>

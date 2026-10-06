@@ -7,8 +7,10 @@
       <string id="ThirdPartyTemplatesCategory">Third-party templates</string>
       <string id="FirewallCategory">Firewall (iptables)</string>
       <string id="LibnssRoleCategory">Role Management (libnss-role)</string>
+      <string id="AnsibleCategory">Configuration Management (Ansible)</string>
       <string id="SUPPORTED_x09Firewall">x09 Firewall plugin</string>
       <string id="SUPPORTED_x09LibnssRole">x09 libnss-role plugin</string>
+      <string id="SUPPORTED_x09Ansible">x09 Ansible plugin</string>
     </stringTable>
   </resources>
 </policyDefinitionResources>

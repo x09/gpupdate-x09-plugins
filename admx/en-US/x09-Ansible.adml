@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>x09 Group Policy Templates - Ansible</displayName>
+  <description>Group Policy Templates for Ansible Management</description>
+  <resources>
+    <stringTable>
+      <string id="AnsiblePlaybook_Name">Ansible Playbook Management</string>
+      <string id="AnsiblePlaybook_Explain">Configure Ansible playbook execution on client machines.
+
+This policy allows you to specify the filename of an Ansible playbook that will be executed on the target system when Group Policy is applied.
+
+Playbook filename:
+Specify the playbook filename (e.g., configure_system.yml). The file must be located in a shared network directory or deployed via another policy.
+
+The playbook will be executed automatically when Group Policy is updated.
+
+Ensure that the playbook file is accessible for reading on the target system and contains valid YAML syntax.</string>
+      <string id="PlaybookFilename_Name">Playbook filename</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="AnsiblePlaybook">
+        <textBox refId="PlaybookFilename">
+          <label>Playbook filename:</label>
+        </textBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

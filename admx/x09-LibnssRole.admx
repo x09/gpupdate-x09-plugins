@@ -16,7 +16,7 @@
       <supportedOn ref="x09base:SUPPORTED_x09LibnssRole" />
       <elements>
         <text id="RoleFileName" key="Software\Policies\x09\LibnssRole\Settings" valueName="RoleFileName" required="false" />
-        <list id="RolesList" valuePrefix="Role" />
+        <list id="RolesList" additive="true" expandableText="true" />
       </elements>
     </policy>
   </policies>
