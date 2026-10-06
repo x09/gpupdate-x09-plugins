@@ -2,7 +2,7 @@
 %define _destdir %_datadir/PolicyDefinitions
 
 Name: gpupdate-x09-plugins
-Version: 1.0
+Version: 1.2
 Release: alt1
 
 Summary: x09 plugins for gpupdate (firewall and role management)
@@ -39,6 +39,7 @@ domain controller to enable policy management via Group Policy Editor.
 Provides templates for:
 - Firewall (iptables) rule management
 - Role management (libnss-role)
+- Ansible GPO plugin (ansible)
 
 # ============================================================================
 # Firewall plugin package (installed on clients)
@@ -78,6 +79,26 @@ Requires: gpoa-lib >= 0.16
 Client-side plugin for gpupdate that manages role files in /etc/role.d/
 for libnss-role. Enables centralized management of group membership in groups
 through domain group policies.
+
+# ============================================================================
+# ansible plugin package (installed on clients)
+# ============================================================================
+
+%package -n gpupdate-x09-ansible-plugin
+Summary: Ansible GPO plugin: run playbooks on Linux clients via MSAD/Samba AD
+License: GPL-2.0-or-later
+Group: System/Configuration/Other
+
+AutoReqProv: no
+Requires: ansible-core
+Requires: python3-module-smbc
+Requires: python3
+Requires: gpoa-lib >= 0.16
+
+%description -n gpupdate-x09-ansible-plugin
+This package provides a Group Policy plugin that enables the execution of
+Ansible playbooks on Linux client machines via the Group Policy mechanism
+of MSAD/Samba AD.
 
 # ============================================================================
 # Build and install
@@ -131,6 +152,10 @@ mkdir -p %buildroot/usr/lib/gpoa/plugins/locale/en_US/LC_MESSAGES
 install -m0644 libnssrole/locale/en_US/LC_MESSAGES/x09_nssrole.mo \
     %buildroot/usr/lib/gpoa/plugins/locale/en_US/LC_MESSAGES/
 
+# ============ ansible plugin ============
+install -m0644 ansible/plugin/x09_ansible.py \
+    %buildroot/usr/lib/gpoa/plugins/x09_ansible.py
+
 %check
 # Test firewall plugin
 cd iptables
@@ -149,15 +174,9 @@ cd ..
 %files -n gpupdate-x09-admx
 %doc README.md README_en.md
 %dir %_destdir
-%_destdir/x09-Base.admx
-%_destdir/x09-Firewall.admx
-%_destdir/x09-LibnssRole.admx
-%_destdir/ru-RU/x09-Base.adml
-%_destdir/ru-RU/x09-Firewall.adml
-%_destdir/ru-RU/x09-LibnssRole.adml
-%_destdir/en-US/x09-Base.adml
-%_destdir/en-US/x09-Firewall.adml
-%_destdir/en-US/x09-LibnssRole.adml
+%_destdir/x09-*.admx
+%_destdir/ru-RU/*.adml
+%_destdir/en-US/*.adml
 
 %files -n gpupdate-x09-firewall-plugin
 /usr/lib/gpoa/plugins/x09_firewall.py
@@ -169,8 +188,17 @@ cd ..
 /usr/lib/gpoa/plugins/locale/ru_RU/LC_MESSAGES/x09_nssrole.mo
 /usr/lib/gpoa/plugins/locale/en_US/LC_MESSAGES/x09_nssrole.mo
 
+%files -n gpupdate-x09-ansible-plugin
+/usr/lib/gpoa/plugins/x09_ansible.py
+
 %changelog
-* Mon Aug 18 2026 Anton Shevtsov <shevtsov.anton@gmail.com> 1.0-alt1
+* Tue Oct 06 2026 Anton Shevtsov <shevtsov.anton@gmail.com> 1.2-alt1
+- Add Ansible GPO plugin
+
+* Tue Oct 06 2026 Anton Shevtsov <shevtsov.anton@gmail.com> 1.1-alt1
+- Fix small errors
+
+* Thu Aug 18 2026 Anton Shevtsov <shevtsov.anton@gmail.com> 1.0-alt1
 - Initial release
 - Firewall (iptables) management plugin
 - Role management (libnss-role) plugin
