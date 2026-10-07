@@ -10,7 +10,7 @@
 This policy allows you to specify the filename of an Ansible playbook that will be executed on the target system when Group Policy is applied.
 
 Playbook filename:
-Specify the playbook filename (e.g., configure_system.yml). The file must be located in a shared network directory or deployed via another policy.
+Specify the playbook filename (e.g., configure_system.yml). The file must be located in the Machine/Scripts/YML subfolder of the policy directory.
 
 The playbook will be executed automatically when Group Policy is updated.
 
